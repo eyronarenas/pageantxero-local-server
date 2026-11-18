@@ -1,76 +1,70 @@
-# Nuxt Minimal Starter
+# PageantXero Local Server
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A minimal Nuxt 4 HTTP server for local PageantXero communication.
 
 ## Setup
 
-Make sure to install dependencies:
+Install the project dependencies:
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
+## Development
 
-Start the development server on `http://localhost:3000`:
+Start the server on all network interfaces at port 3000:
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+npm run dev -- --host 0.0.0.0
 ```
 
-## Production
+The Nuxt development server is configured to bind to `0.0.0.0:3000`, allowing
+other devices on the same local network to connect.
 
-Build the application for production:
+## API
+
+Check server status:
 
 ```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+curl http://localhost:3000/api/health
 ```
 
-Locally preview production build:
+Check discovery information for the development event (`eventId: 7`):
 
 ```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+curl http://localhost:3000/api/discovery/info
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
-# pageantxero-local-server
+Send a ping:
+
+```bash
+curl -X POST http://localhost:3000/api/ping \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Ping!","device":"Test Client"}'
+```
+
+An empty POST body is also accepted:
+
+```bash
+curl -X POST http://localhost:3000/api/ping
+```
+
+Every API request is printed in the terminal running `npm run dev`, for example
+`[api] POST /api/ping from 192.168.1.22`.
+
+## Access from another device
+
+Find the host computer's local Wi-Fi IP address; it is assigned by the local
+network and is not fixed by this application.
+
+- macOS: run `ipconfig getifaddr en0` in Terminal, then `en1` if that is empty
+  (Wi-Fi is not always `en0`).
+- Windows: run `ipconfig` and look for the IPv4 address under the active
+  wireless adapter.
+- Linux: run `ip -4 addr` and find the address on the active Wi-Fi interface.
+
+On a device connected to the same Wi-Fi network, open
+`http://<host-local-ip>:3000/api/health`, replacing `<host-local-ip>` with that
+address. The device can send POST requests to
+`http://<host-local-ip>:3000/api/ping`. The host firewall must allow incoming
+connections on port 3000.
